@@ -58,10 +58,11 @@ public:
     }
 
     //*** Start: UpdatableState implementation ***//
-    virtual void reset() override
+
+    virtual void reset(const Kinematics::State& initial) override
     {
         //reset rotors, kinematics and environment
-        PhysicsBody::reset();
+        PhysicsBody::reset(initial);
 
         //reset inputs
         if (getController())

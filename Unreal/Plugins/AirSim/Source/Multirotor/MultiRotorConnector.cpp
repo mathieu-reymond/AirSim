@@ -363,13 +363,13 @@ bool MultiRotorConnector::isApiServerStarted()
 }
 
 //*** Start: UpdatableState implementation ***//
-void MultiRotorConnector::reset()
+void MultiRotorConnector::reset(const Kinematics::State& initial)
 {
     if (UAirBlueprintLib::IsInGameThread())
-        resetPrivate();
+        resetPrivate(initial);
     else {
         //schedule the task which we will execute in tick event when World object is locked
-        reset_task_ = std::packaged_task<void()>([this]() { resetPrivate(); });
+        reset_task_ = std::packaged_task<void()>([this, &initial]() { resetPrivate(initial); });
         std::future<void> reset_result = reset_task_.get_future();
         reset_pending_ = true;
         did_reset_ = false;
@@ -377,7 +377,12 @@ void MultiRotorConnector::reset()
     }
 }
 
-void MultiRotorConnector::resetPrivate()
+void MultiRotorConnector::reset()
+{
+    reset(vehicle_.getInitialKinematics());
+}
+
+void MultiRotorConnector::resetPrivate(const Kinematics::State& initial)
 {
     VehicleConnectorBase::reset();
 
@@ -386,7 +391,7 @@ void MultiRotorConnector::resetPrivate()
 
     rc_data_ = RCData();
     vehicle_pawn_wrapper_->reset();    //we do flier resetPose so that flier is placed back without collisions
-    vehicle_.reset();
+    vehicle_.reset(initial);
 }
 
 void MultiRotorConnector::update()

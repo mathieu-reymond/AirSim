@@ -41,9 +41,14 @@ public:
     //*** Start: UpdatableState implementation ***//
     virtual void reset() override
     {
+        current_ = initial_;
+    }
+
+    virtual void reset(const State& initial)
+    {
         UpdatableObject::reset();
 
-        current_ = initial_;
+        current_ = initial;
     }
 
     virtual void update() override

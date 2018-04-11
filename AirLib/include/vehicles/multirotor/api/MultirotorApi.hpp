@@ -301,6 +301,11 @@ public:
         vehicle_->reset();
     }
 
+    virtual void reset(const Kinematics::State& initial)
+    {
+        vehicle_->reset(initial);
+    }
+
     virtual void setRCData(const RCData& data)
     {
         controller_->setRCData(data);

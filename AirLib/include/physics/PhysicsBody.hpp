@@ -88,9 +88,14 @@ public: //methods
     //*** Start: UpdatableState implementation ***//
     virtual void reset() override
     {
+        reset(getInitialKinematics());
+    }
+
+    virtual void reset(const Kinematics::State& initial)
+    {
         UpdatableObject::reset();
 
-        kinematics_.reset();
+        kinematics_.reset(initial);
 
         if (environment_)
             environment_->reset();

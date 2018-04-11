@@ -16,6 +16,11 @@ public:
     {
     }
 
+    virtual void reset(const Kinematics::State& initial) override
+    {
+        throw std::logic_error("reset(const Kinematics::State& initial) call is only supported for simulation");
+    }
+
     virtual void updateRenderedState(float dt) override
     {
         unused(dt);

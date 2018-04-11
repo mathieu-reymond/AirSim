@@ -48,6 +48,7 @@ public: //interface
     void initialize(APawn* pawn, const std::vector<APIPCamera*>& cameras, const WrapperConfig& config = WrapperConfig());
 
     void reset();
+    void reset(const msr::airlib::Kinematics::State& initial);
     void onCollision(class UPrimitiveComponent* MyComp, class AActor* Other, class UPrimitiveComponent* OtherComp, 
         bool bSelfMoved, FVector HitLocation, FVector HitNormal, FVector NormalImpulse, const FHitResult& Hit);
 

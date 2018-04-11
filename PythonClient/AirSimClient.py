@@ -506,6 +506,8 @@ class MultirotorClient(AirSimClientBase, object):
     def hover(self):
         return self.client.call('hover')
 
+    def resetWith(self, kinematics):
+        self.client.call('resetWith', kinematics)
         
     # query vehicle state
     def getMultirotorState(self) -> MultirotorState:

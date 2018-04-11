@@ -14,6 +14,9 @@ class VehicleConnectorBase : public UpdatableObject
 {
 public:
     //pure abstract methods in addition to UpdatableObject
+    //virtual void reset() override;
+    using UpdatableObject::reset;
+    virtual void reset(const Kinematics::State& initial) = 0;
 
     //called when physics gets updated (must be fast, avoid rendering)
     virtual void updateRenderedState(float dt) = 0;

@@ -11,6 +11,7 @@
 
 
 #include "common/Common.hpp"
+#include <memory>
 STRICT_MODE_OFF
 #ifndef RPCLIB_MSGPACK
 #define RPCLIB_MSGPACK clmdep_msgpack
@@ -92,6 +93,11 @@ MultirotorRpcLibServer::MultirotorRpcLibServer(MultirotorApi* drone, string serv
 		void { getDroneApi()->setRCData(data.to()); });
 
 
+    (static_cast<rpc::server*>(getServer()))->
+        bind("resetWith", [&](const msr::airlib_rpclib::RpcLibAdapatorsBase::KinematicsState& kinematics) -> void {
+        auto to = kinematics.to();
+        getDroneApi()->reset(to);
+    });
     //getters
     (static_cast<rpc::server*>(getServer()))->
         bind("getMultirotorState", [&]() -> MultirotorRpcLibAdapators::MultirotorState { 

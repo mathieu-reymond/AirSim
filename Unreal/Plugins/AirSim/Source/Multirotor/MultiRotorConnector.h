@@ -49,6 +49,7 @@ public:
     //PhysicsBody interface
     //this just wrapped around MultiRotor physics body
     virtual void reset() override;
+    virtual void reset(const Kinematics::State& initial) override;
     virtual void update() override;
     virtual void reportState(StateReporter& reporter) override;
     virtual UpdatableObject* getPhysicsBody() override;
@@ -72,7 +73,7 @@ public:
 private:
     void detectUsbRc();
     const msr::airlib::RCData& getRCData();  
-    void resetPrivate();
+    void resetPrivate(const Kinematics::State& initial);
 
 private:
     MultiRotor vehicle_;

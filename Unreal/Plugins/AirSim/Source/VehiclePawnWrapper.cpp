@@ -207,6 +207,12 @@ void VehiclePawnWrapper::reset()
     //plot(real_log, FColor::Yellow, Vector3r(0, 0, -3));
 }
 
+void VehiclePawnWrapper::reset(const msr::airlib::Kinematics::State& initial)
+{
+    state_ = initial_state_;
+    setPose(initial.pose, true);
+}
+
 const VehiclePawnWrapper::GeoPoint& VehiclePawnWrapper::getHomePoint() const
 {
     return home_point_;
