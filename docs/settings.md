@@ -42,8 +42,8 @@ Below are complete list of settings available along with their default values. I
     "RecordOnMove": false,
     "RecordInterval": 0.05,
     "Cameras": [
-		  { "CameraID": 0, "ImageType": 0, "PixelsAsFloat": false, "Compress": true }
-	  ]
+        { "CameraID": 0, "ImageType": 0, "PixelsAsFloat": false, "Compress": true }
+    ]
   },
   "CaptureSettings": [
     {
@@ -58,7 +58,13 @@ Below are complete list of settings available along with their default values. I
       "MotionBlurAmount": 0,
       "TargetGamma": 1.0,
       "ProjectionMode": "",
-      "OrthoWidth": 5.12
+      "OrthoWidth": 5.12,
+      "Gimble": {
+        "Stabilization": 0,
+        "Pitch": NaN,
+        "Roll": NaN,
+        "Yaw": NaN
+      }
     }
   ],
   "OriginGeopoint": {
@@ -116,6 +122,13 @@ Below are complete list of settings available along with their default values. I
       "HorzDistortionStrength": 0.002
     }
   ],
+  "AdditionalCameras": [
+    { "X": 0.00, "Y": 0.5, "Z": 0.0, "Roll": 0.0, "Pitch": 0.0, "Yaw": 90.0 }
+  ],
+  "PawnPaths": {
+    "DefaultCar": {"PawnBP":"/AirSim/VehicleAdv/SUV/SuvCarPawn"},
+    "DefaultQuadrotor": {"PawnBP":"/AirSim/Blueprints/BP_FlyingPawn"}
+  },
   "PX4": {
     "FirmwareName": "PX4",
     "LogViewerHostIp": "127.0.0.1",
@@ -146,6 +159,9 @@ The `CaptureSettings` determines how different image types such as scene, depth,
 For explanation of other settings, please see [this article](https://docs.unrealengine.com/latest/INT/Engine/Rendering/PostProcessEffects/AutomaticExposure/). 
 
 The `ImageType` element determines which image type the settings applies to. The valid values are described in [ImageType section](image_apis.md#available-imagetype). In addition, we also support special value `ImageType: -1` to apply the settings to external camera (i.e. what you are looking at on the screen).
+
+### Gimble
+The `Gimble` element allows to freeze camera orientation for pitch, roll and/or yaw. This setting is ignored unless `ImageType` is -1. The `Stabilization` is defaulted to 0 meaning no gimble i.e. camera orientation changes with body orientation on all axis. The value of 1 means full stabilization. The value between 0 to 1 acts as a weight for fixed angles specified (in degrees, in world-frame) in `Pitch`, `Roll` and `Yaw` elements and orientation of the vehicle body. When any of the angles is ommitted from json or set to NaN, that angle is not stabilized (i.e. it moves along with vehicle body).
 
 Note that `CaptureSettings` element is json array so you can add settings for multiple image types easily.
 
@@ -188,6 +204,9 @@ This specifies the latitude, longitude and altitude of the coordinates (0, 0, 0)
 
 ### EngineSound
 To turn off the engine sound use [setting](settings.md) `"EngineSound": false`. Currently this setting applies only to car.
+
+### PawnPaths
+This allows you to specify your own vehicle pawn blueprints, for example, you can replace the default car in AirSim with your own car. Your vehicle BP can reside in Content folder of your own Unreal project (i.e. outside of AirSim plugin folder). For example, if you have a car BP located in file `Content\MyCar\MySedanBP.uasset` in your project then you can set `"DefaultCar": {"PawnBP":"Class'/Game/MyCar/MySedanBP.MySedanBP_C'"}`. The `XYZ.XYZ_C` is a special notation required to specify class for BP `XYZ`. Please note that your BP must be derived from CarPawn class. By default this is not the case but you can re-parent the BP using the "Class Settings" button in toolbar in UE editor after you open the BP and then chosing "Car Pawn" for Parent Class settings in Class Options. It's also a good idea to disable "Auto Possess Player" and "Auto Possess AI" as well as set AI Controller Class to None in BP details. Please make sure your asset is included for cooking in packaging options if you are creating binary.
 
 ### SubWindows
 This setting determines what is shown in each of 3 subwindows which are visible when you press 0 key. The WindowsID can be 0 to 2, CameraID is integer identifying camera number on the vehicle. ImageType integer value determines what kind of image gets shown according to [ImageType enum](image_apis.md#available-imagetype). For example, for car vehicles below shows driver view, front bumper view and rear view as scene, depth ans surface normals respectively.
@@ -254,3 +273,10 @@ This adds regions of noise on horizontal lines.
 This adds fluctuations on horizontal line.
 * `HorzDistortionContrib`: This determines blend ratio of noise pixel with image pixel, 0 means no noise and 1 means only noise.
 * `HorzDistortionStrength`: This determines how large is the distortion.
+
+### Additional Camera Settings
+This allows to configure cameras in addition to the [standard ones](image_apis.md#available-cameras). This is only implemented in the multirotor drone at the moment.
+The X, Y and Z fields specify the location of the new camera in the body frame, where X points forward, Y points to the right, and Z points downwards, and the values are given
+in SI units (meters). Yaw, Pitch, and Roll specify the orientation of the camera, where Yaw denotes rotation around the Z axis, Pitch rotation around the Y axis and Roll rotation around the X axis.
+
+This particular example adds a camera that is mounted on the right side of the drone, pointed to the right. The camera indices of the additional cameras are subsequent to the default ones, so camera index 5 is the first additional camera, camera index 6 the second additional camera, and so on.

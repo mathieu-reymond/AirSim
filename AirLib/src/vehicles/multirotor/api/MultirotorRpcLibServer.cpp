@@ -47,8 +47,11 @@ MultirotorRpcLibServer::MultirotorRpcLibServer(MultirotorApi* drone, string serv
 
 
     (static_cast<rpc::server*>(getServer()))->
-        bind("moveByAngle", [&](float pitch, float roll, float z, float yaw, float duration) -> 
-        bool { return getDroneApi()->moveByAngle(pitch, roll, z, yaw, duration); });
+        bind("moveByAngleZ", [&](float pitch, float roll, float z, float yaw, float duration) -> 
+        bool { return getDroneApi()->moveByAngleZ(pitch, roll, z, yaw, duration); });
+    (static_cast<rpc::server*>(getServer()))->
+        bind("moveByAngleThrottle", [&](float pitch, float roll, float throttle, float yaw_rate, float duration) ->
+            bool { return getDroneApi()->moveByAngleThrottle(pitch, roll, throttle, yaw_rate, duration); });
     (static_cast<rpc::server*>(getServer()))->
         bind("moveByVelocity", [&](float vx, float vy, float vz, float duration, DrivetrainType drivetrain, const MultirotorRpcLibAdapators::YawMode& yaw_mode) -> 
         bool { return getDroneApi()->moveByVelocity(vx, vy, vz, duration, drivetrain, yaw_mode.to()); });
@@ -88,9 +91,9 @@ MultirotorRpcLibServer::MultirotorRpcLibServer(MultirotorApi* drone, string serv
         float obs_avoidance_vel, const MultirotorRpcLibAdapators::Vector3r& origin, float xy_length, float max_z, float min_z) -> 
         bool { return getDroneApi()->setSafety(SafetyEval::SafetyViolationType(enable_reasons), obs_clearance, obs_startegy,
             obs_avoidance_vel, origin.to(), xy_length, max_z, min_z); });
-	(static_cast<rpc::server*>(getServer()))->
-		bind("setRCData", [&](const MultirotorRpcLibAdapators::RCData& data) ->
-		void { getDroneApi()->setRCData(data.to()); });
+    (static_cast<rpc::server*>(getServer()))->
+        bind("setRCData", [&](const MultirotorRpcLibAdapators::RCData& data) ->
+        void { getDroneApi()->setRCData(data.to()); });
 
 
     (static_cast<rpc::server*>(getServer()))->

@@ -62,6 +62,13 @@ void VehiclePawnWrapper::onCollision(class UPrimitiveComponent* MyComp, class AA
         LogDebugLevel::Failure);
 }
 
+void VehiclePawnWrapper::possess()
+{
+    APlayerController* controller = pawn_->GetWorld()->GetFirstPlayerController();
+    controller->UnPossess();
+    controller->Possess(pawn_);
+}
+
 const NedTransform& VehiclePawnWrapper::getNedTransform() const
 {
     return ned_transform_;
@@ -88,6 +95,17 @@ const msr::airlib::Kinematics::State* VehiclePawnWrapper::getTrueKinematics()
 void VehiclePawnWrapper::setKinematics(const msr::airlib::Kinematics::State* kinematics)
 {
     kinematics_ = kinematics;
+}
+
+void VehiclePawnWrapper::getRawVehicleSettings(msr::airlib::Settings& settings) const
+{
+    typedef msr::airlib::AirSimSettings AirSimSettings;
+
+    //find out which RC we should use
+    AirSimSettings::VehicleSettings vehicle_settings =
+        AirSimSettings::singleton().getVehicleSettings(this->getVehicleConfigName());
+
+    vehicle_settings.getRawSettings(settings);
 }
 
 std::string VehiclePawnWrapper::getVehicleConfigName() const 

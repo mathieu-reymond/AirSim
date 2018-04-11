@@ -6,6 +6,11 @@
 #include "physics/Kinematics.hpp"
 #include "CarPawnApi.h"
 #include "SimJoyStick/SimJoyStick.h"
+#include "UObject/ConstructorHelpers.h"
+#include "Components/SkeletalMeshComponent.h"
+#include "PhysicalMaterials/PhysicalMaterial.h"
+#include "common/AirSimSettings.hpp"
+#include "AirBlueprintLib.h"
 #include "CarPawn.generated.h"
 
 class UPhysicalMaterial;
@@ -19,10 +24,6 @@ UCLASS(config = Game)
 class ACarPawn : public AWheeledVehicle
 {
     GENERATED_BODY()
-
-    /** Camera component that will be our viewpoint */
-    UPROPERTY(Category = Camera, VisibleDefaultsOnly, BlueprintReadOnly, meta = (AllowPrivateAccess = "true"))
-    UCameraComponent* Camera;
 
     /** SCene component for the In-Car view origin */
     UPROPERTY(Category = Camera, VisibleDefaultsOnly, BlueprintReadOnly, meta = (AllowPrivateAccess = "true"))
@@ -103,30 +104,26 @@ public:
     /** Handle pressing right */
     void MoveRight(float Val);
     /** Handle handbrake pressed */
-    void OnHandbrakePressed();
+    void onHandbrakePressed();
     /** Handle handbrake released */
-    void OnHandbrakeReleased();
+    void onHandbrakeReleased();
     /** Handle pressiong footbrake */
     void FootBrake(float Val);
     /** Handle Reverse pressed */
-    void OnReversePressed();
+    void onReversePressed();
     /** Handle Reverse released */
-    void OnReverseReleased();
+    void onReverseReleased();
     /** Handle Handbrake pressed */
 
     /** Setup the strings used on the hud */
-    void UpdateInCarHUD();
+    void updateInCarHUD();
 
-    /** Update the physics material used by the vehicle mesh */
-    void UpdatePhysicsMaterial();
-
-    static const FName LookUpBinding;
-    static const FName LookRightBinding;
-    static const FName EngineAudioRPM;
+    /** update the physics material used by the vehicle mesh */
+    void updatePhysicsMaterial();
 
 private:
-    /** Update the gear and speed strings */
-    void UpdateHUDStrings();
+    /** update the gear and speed strings */
+    void updateHUDStrings();
     void startApiServer(bool enable_rpc, const std::string& api_server_address);
     void stopApiServer();
     bool isApiServerStarted();
@@ -134,23 +131,12 @@ private:
     void updateCarControls();
 
     std::string getLogString();
+    void setupVehicleMovementComponent();
 
-    /* Are we on a 'slippery' surface */
-    bool bIsLowFriction;
-    /** Slippery Material instance */
-    UPhysicalMaterial* SlipperyMaterial;
-    /** Non Slippery Material instance */
-    UPhysicalMaterial* NonSlipperyMaterial;
-
-public:
-    /** Returns InCarSpeed subobject **/
-    FORCEINLINE UTextRenderComponent* GetInCarSpeed() const { return InCarSpeed; }
-    /** Returns InCarGear subobject **/
-    FORCEINLINE UTextRenderComponent* GetInCarGear() const { return InCarGear; }
-    /** Returns EngineSoundComponent subobject **/
-    FORCEINLINE UAudioComponent* GetEngineSoundComponent() const { return EngineSoundComponent; }
 
 private:
+    typedef msr::airlib::AirSimSettings AirSimSettings;
+
     UClass* pip_camera_class_;
 
     std::unique_ptr<msr::airlib::CarRpcLibServer> rpclib_server_;
@@ -160,7 +146,16 @@ private:
 
     CarPawnApi::CarControls keyboard_controls_;
     CarPawnApi::CarControls joystick_controls_;
+    CarPawnApi::CarControls current_controls_;
 
     SimJoyStick joystick_;
     SimJoyStick::State joystick_state_;
+
+
+    /* Are we on a 'slippery' surface */
+    bool is_low_friction_;
+    /** Slippery Material instance */
+    UPhysicalMaterial* slippery_mat_;
+    /** Non Slippery Material instance */
+    UPhysicalMaterial* non_slippery_mat_;
 };

@@ -105,6 +105,9 @@ public:
     static void resetSimulatePhysics(AActor* actor);
     static std::vector<UPrimitiveComponent*> getPhysicsComponents(AActor* actor);
 
+    static UObject* LoadObject(const std::string& name);
+    static UClass* LoadClass(const std::string& name);
+
 private:
     template<typename T>
     static void InitializeObjectStencilID(T* obj, bool ignore_existing = true);

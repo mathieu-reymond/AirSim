@@ -15,8 +15,6 @@ ASimModeWorldMultiRotor::ASimModeWorldMultiRotor()
     external_camera_class_ = external_camera_class.Succeeded() ? external_camera_class.Class : nullptr;
     static ConstructorHelpers::FClassFinder<ACameraDirector> camera_director_class(TEXT("Blueprint'/AirSim/Blueprints/BP_CameraDirector'"));
     camera_director_class_ = camera_director_class.Succeeded() ? camera_director_class.Class : nullptr;
-    static ConstructorHelpers::FClassFinder<TMultiRotorPawn> vehicle_pawn_class(TEXT("Blueprint'/AirSim/Blueprints/BP_FlyingPawn'"));
-    vehicle_pawn_class_ = vehicle_pawn_class.Succeeded() ? vehicle_pawn_class.Class : nullptr;
 }
 
 void ASimModeWorldMultiRotor::BeginPlay()
@@ -62,7 +60,7 @@ void ASimModeWorldMultiRotor::setupVehiclesAndCamera(std::vector<VehiclePtr>& ve
 {
     //get player controller
     APlayerController* player_controller = this->GetWorld()->GetFirstPlayerController();
-    FTransform actor_transform = player_controller->GetActorTransform();
+    FTransform actor_transform = player_controller->GetViewTarget()->GetActorTransform();
     //put camera little bit above vehicle
     FTransform camera_transform(actor_transform.GetLocation() + FVector(-300, 0, 200));
 
@@ -101,12 +99,15 @@ void ASimModeWorldMultiRotor::setupVehiclesAndCamera(std::vector<VehiclePtr>& ve
 
         //if no vehicle pawns exists in environment
         if (pawns.Num() == 0) {
+            auto vehicle_bp_class = UAirBlueprintLib::LoadClass(
+                getSettings().pawn_paths.at("DefaultQuadrotor").pawn_bp);
+
             //create vehicle pawn
             FActorSpawnParameters pawn_spawn_params;
             pawn_spawn_params.SpawnCollisionHandlingOverride =
                 ESpawnActorCollisionHandlingMethod::AdjustIfPossibleButAlwaysSpawn;
             TMultiRotorPawn* spawned_pawn = this->GetWorld()->SpawnActor<TMultiRotorPawn>(
-                vehicle_pawn_class_, actor_transform, pawn_spawn_params);
+                vehicle_bp_class, actor_transform, pawn_spawn_params);
 
             spawned_actors_.Add(spawned_pawn);
             pawns.Add(spawned_pawn);
@@ -117,7 +118,7 @@ void ASimModeWorldMultiRotor::setupVehiclesAndCamera(std::vector<VehiclePtr>& ve
         {
             //initialize each vehicle pawn we found
             TMultiRotorPawn* vehicle_pawn = static_cast<TMultiRotorPawn*>(pawn);
-            vehicle_pawn->initializeForBeginPlay();
+            vehicle_pawn->initializeForBeginPlay(getSettings().additional_camera_settings);
 
             //chose first pawn as FPV if none is designated as FPV
             VehiclePawnWrapper* wrapper = vehicle_pawn->getVehiclePawnWrapper();
@@ -137,6 +138,7 @@ void ASimModeWorldMultiRotor::setupVehiclesAndCamera(std::vector<VehiclePtr>& ve
         }
     }
 
+    fpv_vehicle_pawn_wrapper_->possess();
     CameraDirector->initializeForBeginPlay(getInitialViewMode(), fpv_vehicle_pawn_wrapper_, external_camera);
 }
 
